@@ -1,0 +1,844 @@
+
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>inspiraCitation</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    "primary-blue": "#0A2463",
+                    "accent-red": "#D83121",
+                    "card-dark": "#1A1A1A",
+                    "border-dark": "#343A40",
+                    "primary-text-dark": "#EAEAEA",
+                    "secondary-text-dark": "#ADB5BD",
+                },
+            },
+        },
+    }
+  </script>
+  <style>
+    :root {
+      --bg-dark: #0D0D0D;
+      --card-dark: #1A1A1A;
+      --border-dark: #343A40;
+      --primary-text-dark: #EAEAEA;
+      --secondary-text-dark: #ADB5BD;
+      --primary-blue: #0A2463;
+      --accent-red: #D83121;
+    }
+
+    @keyframes animated-gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+    .shake-it { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both; }
+
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: linear-gradient(135deg, #0a0c10, #1a1c23, #0a0c10);
+      background-size: 200% 200%;
+      animation: animated-gradient 20s ease infinite;
+      color: var(--primary-text-dark);
+      overflow-x: hidden;
+    }
+    
+    .font-serif {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+
+    .glass-panel {
+      background: rgba(26, 26, 26, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-dark);
+    }
+    
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-dark); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--secondary-text-dark); }
+
+    @keyframes gentleFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-gentle-fadeIn {
+      animation: gentleFadeIn 0.5s ease-out forwards;
+    }
+
+    .modal { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+    .modal.is-open { display: flex; opacity: 1; }
+    .modal.is-open > div[data-modal-content] { animation: gentleFadeIn 0.4s ease-out forwards; }
+
+    #quote-grid {
+      column-gap: 1.5rem;
+    }
+    .quote-card {
+      break-inside: avoid;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    @media (min-width: 640px) { #quote-grid { column-count: 2; } }
+    @media (min-width: 1024px) { #quote-grid { column-count: 3; } }
+
+    /* Premium Card Styles */
+    .premium-card {
+      background: linear-gradient(145deg, #1f1f1f, #161616);
+      border-color: #444;
+    }
+    .premium-card:before {
+      content: '';
+      position: absolute;
+      top: -1px; left: -1px; right: -1px; bottom: -1px;
+      border-radius: 0.8rem; /* slightly more than card's rounded-xl */
+      padding: 1px;
+      background: linear-gradient(145deg, var(--accent-red), var(--primary-blue));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask-composite: exclude;
+      opacity: 0.6;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .premium-card:hover:before {
+      opacity: 1;
+    }
+
+    .premium-card .quote-text {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.4rem; /* 22.4px */
+      line-height: 1.5;
+      letter-spacing: 0.5px;
+    }
+
+    /* Premium Animation */
+    .animate-premium-fadeIn {
+      animation: premiumFadeIn 0.7s ease-out forwards;
+    }
+    @keyframes premiumFadeIn {
+      from { opacity: 0; transform: translateY(15px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Responsiveness */
+    @media (max-width: 767px) {
+      h1 { font-size: 4rem !important; }
+      .header-add-button .button-text {
+        display: none;
+      }
+      .header-add-button {
+        width: 2.5rem; /* h-10 */
+        padding: 0;
+      }
+      #chat-panel-container {
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  
+  <div id="app"></div>
+
+  <script type="module">
+    // ==================== STATE MANAGEMENT ====================
+    let state = {
+      quotes: [],
+      isPremium: false,
+      currentLang: 'fr',
+      isGenerating: false,
+      showFavoritesOnly: false,
+      isAddModalOpen: false,
+      isPremiumModalOpen: false,
+      isShareModalOpen: false,
+      isChatOpen: false,
+      isAlertModalOpen: false,
+      alertModalContent: { title: '', message: '' },
+      selectedQuote: null,
+      minoriMessages: [],
+      minoriInput: '',
+      minoriIsLoading: false,
+      activeCollection: 'all',
+      searchQuery: '',
+      isSurpriseModalOpen: false,
+      dailySurpriseQuote: null,
+    };
+
+    // ==================== EXTERNAL SERVICES MOCK ====================
+    const callAI = async (prompt, options) => {
+        await new Promise(res => setTimeout(res, 1200)); 
+
+        if (prompt.includes("Analyse this quote")) {
+            return JSON.stringify({ isAppropriate: true, reason: "" });
+        }
+        
+        if (prompt.includes("You are Minori Motivation")) {
+            const responses = [
+              { message: "C'est une perspective intéressante. Parfois, voir les choses sous un autre angle peut tout changer. Voici une pensée :", quote: { text: "La clarté vient de l'action, pas de la pensée.", author: "Marie Forleo", collection: "Action" } },
+              { message: "Je comprends ce que vous ressentez. N'oubliez pas que chaque défi est une opportunité déguisée. Méditez sur ceci :", quote: { text: "Dans chaque graine de doute, il y a une fleur de possibilité qui attend d'éclore.", author: "Anonyme", collection: "Espoir" } },
+              { message: "Merci de partager ça. C'est en étant vulnérable qu'on trouve sa vraie force. Peut-être que ceci résonnera en vous :", quote: { text: "Les étoiles ne peuvent pas briller sans l'obscurité.", author: "D.H. Lawrence", collection: "Résilience" } }
+            ];
+            return JSON.stringify(responses[Math.floor(Math.random() * responses.length)]);
+        }
+
+        const newQuotes = [
+            { text: "La persévérance est la clé qui ouvre les portes de l'impossible.", author: "Proverbe Chinois", collection: "Persévérance" },
+            { text: "Votre seule limite est celle que vous vous fixez.", author: "Anonyme", collection: "Motivation" },
+            { text: "Le succès, c'est tomber sept fois et se relever huit.", author: "Proverbe Japonais", collection: "Succès" },
+            { text: "Croyez en vos rêves et ils se réaliseront peut-être. Croyez en vous et ils se réaliseront sûrement.", author: "Martin Luther King", collection: "Confiance" },
+            { text: "L'échec est le fondement de la réussite.", author: "Lao Tseu", collection: "Résilience" },
+            { text: "La vie, ce n’est pas d’attendre que les orages passent, c’est d’apprendre à danser sous la pluie.", author: "Sénèque", collection: "Adaptation" },
+            { text: "La connaissance s'acquiert par l'expérience, tout le reste n'est que de l'information.", author: "Albert Einstein", collection: "Sagesse" },
+            { text: "Ne jugez pas chaque journée par la récolte que vous faites, mais par les graines que vous semez.", author: "Robert Louis Stevenson", collection: "Patience" },
+        ];
+        return JSON.stringify(newQuotes[Math.floor(Math.random() * newQuotes.length)]);
+    };
+
+    // ==================== TRANSLATIONS ====================
+    const TRANSLATIONS = {
+      fr: {
+        title: "inspiraCitation",
+        addQuote: "Ajouter",
+        premiumMode: "Mode Premium",
+        share: "Partager",
+        delete: "Supprimer",
+        favorite: "Favoris",
+        unfavorite: "Retirer des favoris",
+        noQuotes: "Aucune citation pour le moment",
+        addSome: "Ajoutez-en une ou discutez avec Minori !",
+        addYourQuote: "Ajoutez votre citation",
+        writeHere: "Écrivez votre citation ici...",
+        authorOptional: "Auteur (optionnel)",
+        cancel: "Annuler",
+        add: "Ajouter",
+        shareQuote: "Partager la citation",
+        copy: "Copier",
+        copied: "Copié !",
+        inappropriateTitle: "Contenu non autorisé",
+        understood: "Compris",
+        askMinori: "Discutez avec Minori...",
+        send: "Envoyer",
+        quoteAdded: "✓ Citation ajoutée à votre collection !",
+        minoriWelcome: "Bonjour ! Je suis Minori. Parlez-moi de ce qui vous préoccupe. Je suis là pour vous écouter, sans jugement.",
+        minoriPrivacy: "Vos conversations sont privées et ne sont jamais sauvegardées.",
+        loadingMore: "Chargement...",
+        showFavorites: "Voir les favoris",
+        showAll: "Voir tout",
+        mentorError: "Désolée, une erreur est survenue. Pourriez-vous reformuler ?",
+        alreadyAdded: "Déjà ajouté",
+        upgradeToPremium: "Accès Premium",
+        premiumFeatures: "Entrez le code d'accès pour débloquer les fonctionnalités exclusives.",
+        featureDelete: "Suppression illimitée des citations",
+        featureStyle: "Style et animations de cartes exclusifs",
+        featureBadge: "Badge de supporter Premium",
+        featureSurprise: "🎲 Citation Surprise quotidienne",
+        unlock: "Déverrouiller",
+        noThanks: "Plus tard",
+        enterCode: "Entrez le code...",
+        invalidCodeTitle: "Code Incorrect",
+        invalidCodeMessage: "Le code entré n'est pas valide. Veuillez réessayer.",
+        all: "Toutes",
+        collection: "Collection (optionnel)",
+        general: "Général",
+        quoteExistsTitle: "Citation en double",
+        quoteExists: "Cette citation est déjà dans votre collection.",
+        surpriseQuote: "Citation Surprise",
+        yourSurpriseForToday: "Votre surprise du jour",
+        comeBackTomorrow: "Revenez demain pour une nouvelle surprise !",
+        searchPlaceholder: "Rechercher une citation ou un auteur...",
+      },
+    };
+
+    // ==================== ICONS ====================
+    const ICONS = {
+      logo: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="text-accent-red"><path d="M11.83 2.1a1 1 0 00-1.66 1.11C11.53 5.48 10 7.82 10 10.5c0 1.2.4 2.33 1.13 3.26A4.01 4.01 0 0010 17.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5a4.01 4.01 0 00-1.13-2.74c.73-.93 1.13-2.06 1.13-3.26 0-2.68-1.53-5.02-2.89-7.29a1 1 0 00-1.41-.31z" /></svg>`,
+      x: `<span class="material-symbols-outlined text-xl">close</span>`,
+      loader: `<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`,
+      plus: `<span class="material-symbols-outlined text-xl">add</span>`,
+      trash: `<span class="material-symbols-outlined text-xl">delete</span>`,
+      share: `<span class="material-symbols-outlined text-xl">share</span>`,
+      crown: `<span class="material-symbols-outlined text-xl">workspace_premium</span>`,
+      messageCircle: `<span class="material-symbols-outlined text-2xl">chat_bubble</span>`,
+      send: `<span class="material-symbols-outlined text-2xl">send</span>`,
+      heart: `<span class="material-symbols-outlined" style="font-size: 4rem;">favorite</span>`,
+      star: `<span class="material-symbols-outlined text-xl">star</span>`,
+      starOutline: `<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 0;">star</span>`,
+      copy: `<span class="material-symbols-outlined text-xl">content_copy</span>`,
+      checkCircle: `<span class="material-symbols-outlined text-green-400">check_circle</span>`,
+      dice: `<span class="material-symbols-outlined text-xl">casino</span>`,
+      search: `<span class="material-symbols-outlined text-xl">search</span>`,
+    };
+    
+    const INITIAL_QUOTES = [
+      { id: 'initial-1', text: "Celui qui gravit l'échec gravit le succès sans avoir à passer par un autre chemin.", author: "Mael", createdAt: Date.now(), isFavorite: false, collection: "Succès" },
+      { id: 'initial-2', text: "La seule façon de faire du bon travail est d'aimer ce que vous faites.", author: "Steve Jobs", createdAt: Date.now(), isFavorite: false, collection: "Travail" },
+    ];
+    
+    // ==================== HELPERS ====================
+    const getT = () => TRANSLATIONS[state.currentLang] || TRANSLATIONS['fr'];
+    
+    const saveState = () => {
+      localStorage.setItem('inspiraCitationState', JSON.stringify({
+        quotes: state.quotes, isPremium: state.isPremium, currentLang: state.currentLang,
+      }));
+    };
+
+    const loadState = () => {
+      const savedState = localStorage.getItem('inspiraCitationState');
+      if (savedState) {
+        const parsed = JSON.parse(savedState);
+        state.quotes = parsed.quotes || [];
+        state.isPremium = parsed.isPremium || false;
+        state.currentLang = parsed.currentLang || 'fr';
+      } else {
+        state.quotes = INITIAL_QUOTES;
+      }
+      state.quotes.sort((a, b) => b.createdAt - a.createdAt);
+    };
+
+    const setState = (newState) => {
+        const oldState = { ...state };
+        Object.assign(state, newState);
+        render(oldState);
+        saveState();
+    };
+
+    const scrollToChatBottom = () => {
+        setTimeout(() => {
+            const messageList = document.getElementById('message-list');
+            if (messageList) {
+                messageList.scrollTop = messageList.scrollHeight;
+            }
+        }, 0);
+    };
+
+    // ==================== RENDERING LOGIC ====================
+    const app = document.getElementById('app');
+
+    const renderQuoteCard = (quote) => {
+      const t = getT();
+      const authorClass = quote.author === 'Mael' ? 'text-accent-red' : 'text-secondary-text-dark';
+      const isPremiumCard = state.isPremium;
+      return `
+        <div class="quote-card bg-card-dark rounded-xl border border-border-dark shadow-sm hover:shadow-xl hover:shadow-red-500/5 hover:-translate-y-1 transition-all duration-300 ${isPremiumCard ? 'premium-card' : ''}">
+          <div class="p-6 sm:p-8 flex flex-col gap-6 h-full">
+            <div class="absolute top-4 right-4 text-xs bg-accent-red/20 text-accent-red px-2 py-1 rounded-full font-semibold">${quote.collection || t.general}</div>
+            <p class="quote-text flex-grow text-xl font-medium leading-relaxed text-primary-text-dark pt-6">"${quote.text}"</p>
+            <div class="flex items-center justify-between pt-4 border-t border-border-dark">
+              <p class="text-base font-semibold ${authorClass}">— ${quote.author || 'Anonyme'}</p>
+              <div class="flex items-center">
+                <button data-action="toggle-favorite" data-id="${quote.id}" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${quote.isFavorite ? 'text-yellow-400' : 'text-secondary-text-dark'} hover:bg-white/10 transition-colors" title="${quote.isFavorite ? t.unfavorite : t.favorite}" aria-label="${quote.isFavorite ? t.unfavorite : t.favorite}">
+                    ${quote.isFavorite ? ICONS.star : ICONS.starOutline}
+                </button>
+                <button data-action="share" data-id="${quote.id}" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-secondary-text-dark hover:bg-white/10 transition-colors" title="${t.share}" aria-label="${t.share}">${ICONS.share}</button>
+                <button data-action="delete" data-id="${quote.id}" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-secondary-text-dark hover:bg-white/10 transition-colors" title="${t.delete}" aria-label="${t.delete}">${ICONS.trash}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    };
+    
+    const renderChatPanelContent = () => {
+        const t = getT();
+        const messagesHTML = state.minoriMessages.map((msg, index) => {
+          if (msg.role === 'user') return `<div class="flex justify-end"><div class="max-w-[85%] rounded-2xl rounded-br-none p-4 bg-primary-blue text-white"><p class="whitespace-pre-wrap leading-relaxed">${msg.content}</p></div></div>`;
+          if (msg.role === 'system') return `<div class="flex justify-start"><div class="w-full max-w-[85%] rounded-lg p-3 text-center text-sm bg-green-600/20 text-green-300 border border-green-500/30"><p>${msg.content}</p></div></div>`;
+          
+          const quoteExists = msg.quote ? state.quotes.some(q => q.text === msg.quote.text && q.author === msg.quote.author) : false;
+
+          return `<div class="flex justify-start"><div class="max-w-[85%] rounded-2xl rounded-bl-none p-4 bg-card-dark text-primary-text-dark"><p class="whitespace-pre-wrap leading-relaxed">${msg.content}</p>${msg.quote ? `<div class="mt-4 p-3 bg-black/30 rounded-lg border border-border-dark"><p class="text-sm italic text-secondary-text-dark mb-2">"${msg.quote.text}"</p><p class="text-xs text-secondary-text-dark/80 mb-3">— ${msg.quote.author}</p><button data-action="add-minori-quote" data-message-index="${index}" class="w-full px-3 py-2 bg-accent-red hover:bg-opacity-90 text-white text-sm rounded-lg transition-all font-semibold disabled:bg-gray-500 disabled:cursor-not-allowed" ${quoteExists ? 'disabled' : ''}>${quoteExists ? t.alreadyAdded : t.add}</button></div>` : ''}</div></div>`;
+        }).join('');
+
+        return `
+            <div class="flex items-center justify-between p-4 border-b border-border-dark"><div class="flex items-center gap-3"><div class="size-8">${ICONS.logo}</div><div><h3 class="text-lg font-bold text-white">Minori</h3></div></div><button data-action="close-chat" class="p-2 rounded-full text-secondary-text-dark hover:bg-white/10 transition-colors" aria-label="Fermer le chat">${ICONS.x}</button></div>
+            <div id="message-list" class="flex-1 overflow-y-auto p-4 space-y-4">${messagesHTML}${state.minoriIsLoading ? `<div class="flex justify-start"><div class="bg-card-dark rounded-2xl p-4"><div class="w-5 h-5 animate-spin text-accent-red">${ICONS.loader}</div></div></div>` : ''}</div>
+            <form id="chat-form" class="p-4 border-t border-border-dark"><div class="flex gap-2"><input type="text" id="chat-input" value="${state.minoriInput}" placeholder="${t.askMinori}" class="flex-1 px-4 py-3 bg-card-dark border border-border-dark rounded-xl text-primary-text-dark placeholder-secondary-text-dark focus:outline-none focus:ring-2 focus:ring-accent-red focus:border-transparent" /><button type="submit" class="p-3 bg-accent-red hover:bg-opacity-90 text-white rounded-xl transition-all disabled:opacity-50" aria-label="${t.send}">${ICONS.send}</button></div></form>
+        `;
+    };
+
+    const renderCollectionFilters = () => {
+      const t = getT();
+      const collections = [t.all, ...new Set(state.quotes.map(q => q.collection || t.general))];
+      return `
+        <div class="flex flex-wrap justify-center gap-2 mb-12">
+          ${collections.map(c => {
+            const isActive = (state.activeCollection === 'all' && c === t.all) || state.activeCollection === c;
+            return `<button data-action="filter-collection" data-collection="${c === t.all ? 'all' : c}" class="px-4 py-2 text-sm font-bold rounded-full transition-colors ${isActive ? 'bg-accent-red text-white' : 'bg-card-dark text-secondary-text-dark hover:bg-border-dark'}">${c}</button>`
+          }).join('')}
+        </div>
+      `;
+    };
+
+    const render = (oldState = {}) => {
+      const t = getT();
+      
+      let filteredQuotes = state.showFavoritesOnly ? state.quotes.filter(q => q.isFavorite) : state.quotes;
+      if (state.activeCollection !== 'all') {
+        filteredQuotes = filteredQuotes.filter(q => (q.collection || t.general) === state.activeCollection);
+      }
+      if (state.searchQuery) {
+        const lowercasedQuery = state.searchQuery.toLowerCase();
+        filteredQuotes = filteredQuotes.filter(q => 
+          q.text.toLowerCase().includes(lowercasedQuery) || 
+          (q.author && q.author.toLowerCase().includes(lowercasedQuery))
+        );
+      }
+
+      const quoteListHTML = filteredQuotes.length > 0 
+        ? filteredQuotes.map(renderQuoteCard).join('') 
+        : `<div class="text-center py-16 col-span-full"><div class="w-16 h-16 mx-auto text-red-800 mb-4">${ICONS.heart}</div><p class="text-secondary-text-dark text-lg">${t.noQuotes}</p><p class="text-secondary-text-dark/80 mt-2">${t.addSome}</p></div>`;
+        
+      app.innerHTML = `
+        <header class="fixed top-0 left-0 right-0 z-40 bg-transparent backdrop-blur-lg">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-20 items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="size-8">${ICONS.logo}</div>
+                        <h2 class="text-xl font-bold tracking-tight text-white">L'éveil d'une âme perdue</h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button data-action="open-add" class="header-add-button flex items-center justify-center gap-2 h-10 px-4 rounded-full bg-accent-red text-white text-sm font-bold shadow-lg hover:bg-opacity-90 transition-colors" aria-label="${t.addQuote}">${ICONS.plus} <span class="button-text">${t.addQuote}</span></button>
+                        <button data-action="toggle-favorites-view" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full ${state.showFavoritesOnly ? 'bg-yellow-400/20 text-yellow-400' : 'text-secondary-text-dark'} hover:bg-white/10 transition-colors" title="${state.showFavoritesOnly ? t.showAll : t.showFavorites}" aria-label="${state.showFavoritesOnly ? t.showAll : t.showFavorites}">${ICONS.star}</button>
+                        ${state.isPremium 
+                            ? `<button data-action="open-surprise" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-secondary-text-dark hover:bg-white/10 transition-colors" title="${t.surpriseQuote}" aria-label="${t.surpriseQuote}">${ICONS.dice}</button>
+                               <div class="flex h-10 w-10 cursor-default items-center justify-center rounded-full text-yellow-400 bg-yellow-400/10" title="Mode Premium Actif" aria-label="Mode Premium Actif">${ICONS.crown}</div>`
+                            : `<button data-action="open-premium" class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-secondary-text-dark hover:bg-white/10 transition-colors" title="${t.premiumMode}" aria-label="${t.premiumMode}">${ICONS.crown}</button>`
+                        }
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow pt-20 pb-28">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="py-20 sm:py-28 text-center">
+                    <h1 class="text-5xl sm:text-7xl md:text-8xl font-serif font-black tracking-tighter text-white">Inspira<span class="text-accent-red">Citation</span></h1>
+                </div>
+                <div class="mb-12 max-w-xl mx-auto">
+                    <div class="relative">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-secondary-text-dark">${ICONS.search}</div>
+                        <input type="search" id="search-input" value="${state.searchQuery}" placeholder="${t.searchPlaceholder}" class="w-full pl-12 pr-4 py-3 bg-card-dark border border-border-dark rounded-full text-primary-text-dark placeholder-secondary-text-dark focus:outline-none focus:ring-2 focus:ring-accent-red focus:border-transparent transition-all" />
+                    </div>
+                </div>
+                ${renderCollectionFilters()}
+                <div id="quote-grid">${quoteListHTML}</div>
+                ${!state.showFavoritesOnly ? `<div id="loading-sentinel" class="text-center py-8 h-20">${state.isGenerating ? `<div class="flex items-center justify-center gap-3 text-secondary-text-dark"><div class="w-5 h-5">${ICONS.loader}</div><span>${t.loadingMore}</span></div>` : ''}</div>` : ''}
+            </div>
+        </main>
+
+        <div class="fixed bottom-6 right-6 z-40">
+           <button data-action="open-chat" class="flex items-center justify-center gap-2 h-16 w-16 rounded-full bg-accent-red text-white font-bold shadow-lg hover:bg-opacity-90 transition-transform hover:scale-105" aria-label="Ouvrir le chat avec Minori">${ICONS.messageCircle}</button>
+        </div>
+        
+        ${renderModals()}
+
+        <div id="chat-panel-container" class="fixed top-0 right-0 h-full w-full max-w-md z-50 transform transition-transform duration-500 ease-in-out ${state.isChatOpen ? 'translate-x-0' : 'translate-x-full'}">
+            <div id="chat-panel" class="glass-panel w-full h-full flex flex-col">${state.isChatOpen ? renderChatPanelContent() : ''}</div>
+        </div>
+      `;
+      
+      if (state.isChatOpen && !oldState.isChatOpen) {
+          scrollToChatBottom();
+          document.getElementById('chat-input')?.focus();
+      }
+
+      document.querySelectorAll('#quote-grid > .quote-card:not(.has-animated)').forEach(el => {
+        const animationClass = el.classList.contains('premium-card') ? 'animate-premium-fadeIn' : 'animate-gentle-fadeIn';
+        el.classList.add(animationClass, 'has-animated');
+      });
+
+      attachEventListeners();
+      reinitObserver();
+    };
+    
+    const renderModals = () => {
+        const t = getT();
+        const selected = state.selectedQuote || { text: '', author: '' };
+        const isSurpriseAdded = state.dailySurpriseQuote ? state.quotes.some(q => q.text === state.dailySurpriseQuote.text && q.author === state.dailySurpriseQuote.author) : false;
+
+        return `
+        <!-- Add Quote Modal -->
+        <div id="add-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black/70 ${state.isAddModalOpen ? 'is-open' : ''}">
+            <div class="bg-card-dark rounded-xl border border-border-dark p-6 sm:p-8 shadow-xl w-full max-w-lg m-4" data-modal-content>
+                <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-bold text-white">${t.addYourQuote}</h2><button data-action="close-modal" class="p-2 rounded-full text-secondary-text-dark hover:bg-white/10" aria-label="Fermer la fenêtre modale">${ICONS.x}</button></div>
+                <form id="add-quote-form" class="space-y-4">
+                    <textarea name="text" placeholder="${t.writeHere}" rows="4" required class="w-full px-5 py-3 bg-black/30 border border-border-dark rounded-lg text-primary-text-dark placeholder-secondary-text-dark focus:outline-none focus:ring-2 focus:ring-accent-red transition-all resize-none"></textarea>
+                    <input type="text" name="author" placeholder="${t.authorOptional}" class="w-full px-5 py-3 bg-black/30 border border-border-dark rounded-lg text-primary-text-dark placeholder-secondary-text-dark focus:outline-none focus:ring-2 focus:ring-accent-red transition-all" />
+                    <input type="text" name="collection" placeholder="${t.collection}" class="w-full px-5 py-3 bg-black/30 border border-border-dark rounded-lg text-primary-text-dark placeholder-secondary-text-dark focus:outline-none focus:ring-2 focus:ring-accent-red transition-all" />
+                    <div class="flex justify-end gap-4 pt-2">
+                        <button type="button" data-action="close-modal" class="px-6 py-2 text-base font-bold text-primary-text-dark bg-border-dark rounded-lg hover:bg-opacity-80">${t.cancel}</button>
+                        <button type="submit" class="inline-flex items-center justify-center px-6 py-2 w-[110px] text-base font-bold text-white bg-accent-red rounded-lg hover:bg-opacity-90 disabled:opacity-60"><span class="submit-text">${t.add}</span><span class="loading-spinner hidden">${ICONS.loader}</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Share Modal -->
+        <div id="share-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black/70 ${state.isShareModalOpen ? 'is-open' : ''}">
+             <div class="bg-card-dark rounded-xl border border-border-dark p-6 sm:p-8 shadow-xl w-full max-w-md m-4" data-modal-content>
+                <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-white">${t.shareQuote}</h2><button data-action="close-modal" class="p-2 rounded-full text-secondary-text-dark hover:bg-white/10" aria-label="Fermer la fenêtre modale">${ICONS.x}</button></div>
+                <p class="bg-black/30 p-4 rounded-lg border border-border-dark italic text-secondary-text-dark mb-6">"${selected.text}"<br><span class="font-bold not-italic text-primary-text-dark">— ${selected.author}</span></p>
+                <button data-action="copy-quote" class="w-full flex items-center justify-center gap-2 px-6 py-3 text-base font-bold text-white bg-primary-blue rounded-lg hover:bg-opacity-90">${ICONS.copy} ${t.copy}</button>
+            </div>
+        </div>
+        <!-- Alert Modal -->
+        <div id="alert-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black/70 ${state.isAlertModalOpen ? 'is-open' : ''}">
+             <div class="bg-card-dark rounded-xl border border-border-dark p-6 sm:p-8 shadow-xl w-full max-w-sm m-4 text-center" data-modal-content>
+                <h2 class="text-2xl font-bold text-accent-red mb-4">${state.alertModalContent.title}</h2>
+                <p class="text-secondary-text-dark mb-6">${state.alertModalContent.message}</p>
+                <button data-action="close-modal" class="px-8 py-2 text-base font-bold text-white bg-accent-red rounded-lg hover:bg-opacity-90">${t.understood}</button>
+            </div>
+        </div>
+        <!-- Premium Modal -->
+        <div id="premium-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black/70 ${state.isPremiumModalOpen ? 'is-open' : ''}">
+            <div class="bg-card-dark rounded-xl border border-border-dark p-6 sm:p-8 shadow-xl w-full max-w-md m-4 text-center" data-modal-content>
+                <div class="mx-auto w-16 h-16 mb-4 text-yellow-400">${ICONS.crown.replace('text-xl', 'text-5xl')}</div>
+                <h2 class="text-3xl font-bold text-white mb-2">${t.upgradeToPremium}</h2>
+                <p class="text-secondary-text-dark mb-6">${t.premiumFeatures}</p>
+                <ul class="text-left space-y-3 mb-8 px-4 text-secondary-text-dark">
+                  <li class="flex items-start gap-3"><div class="pt-1">${ICONS.checkCircle}</div><span>${t.featureStyle}</span></li>
+                  <li class="flex items-start gap-3"><div class="pt-1">${ICONS.checkCircle}</div><span>${t.featureDelete}</span></li>
+                  <li class="flex items-start gap-3"><div class="pt-1">${ICONS.checkCircle}</div><span>${t.featureSurprise}</span></li>
+                  <li class="flex items-start gap-3"><div class="pt-1">${ICONS.checkCircle}</div><span>${t.featureBadge}</span></li>
+                </ul>
+                <form id="unlock-premium-form" class="w-full space-y-2">
+                  <input type="text" name="code" placeholder="${t.enterCode}" required class="w-full text-center px-5 py-3 bg-black/30 border border-border-dark rounded-lg text-primary-text-dark placeholder-secondary-text-dark focus:outline-none focus:ring-2 focus:ring-accent-red transition-all" />
+                  <div id="premium-error-message" class="text-accent-red text-sm h-5"></div>
+                  <div class="flex flex-col gap-3 pt-2">
+                      <button type="submit" class="px-8 py-3 text-base font-bold text-white bg-accent-red rounded-lg hover:bg-opacity-90">${t.unlock}</button>
+                      <button type="button" data-action="close-modal" class="px-8 py-2 text-sm font-bold text-secondary-text-dark hover:text-white">${t.noThanks}</button>
+                  </div>
+                </form>
+            </div>
+        </div>
+        <!-- Surprise Modal -->
+        <div id="surprise-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black/70 ${state.isSurpriseModalOpen ? 'is-open' : ''}">
+            <div class="bg-card-dark rounded-xl border border-border-dark p-6 sm:p-8 shadow-xl w-full max-w-lg m-4 text-center" data-modal-content>
+                <div class="mx-auto w-16 h-16 mb-4 text-accent-red">${ICONS.dice.replace('text-xl', 'text-5xl')}</div>
+                <h2 class="text-3xl font-bold text-white mb-2">${t.surpriseQuote}</h2>
+                <p class="text-secondary-text-dark mb-6">${t.yourSurpriseForToday}</p>
+                ${state.dailySurpriseQuote 
+                    ? `
+                    <div class="bg-black/30 p-4 rounded-lg border border-border-dark text-left mb-6">
+                        <p class="text-lg italic text-primary-text-dark mb-4">"${state.dailySurpriseQuote.text}"</p>
+                        <p class="font-bold text-right text-secondary-text-dark">— ${state.dailySurpriseQuote.author}</p>
+                    </div>
+                    <button data-action="add-surprise-quote" class="w-full px-8 py-3 text-base font-bold text-white bg-accent-red rounded-lg hover:bg-opacity-90 disabled:bg-gray-500 disabled:cursor-not-allowed" ${isSurpriseAdded ? 'disabled' : ''}>
+                        ${isSurpriseAdded ? t.alreadyAdded : t.add}
+                    </button>
+                    ` 
+                    : `<p class="text-secondary-text-dark my-8">${t.comeBackTomorrow}</p>`
+                }
+                <button type="button" data-action="close-modal" class="mt-4 px-8 py-2 text-sm font-bold text-secondary-text-dark hover:text-white">${t.cancel}</button>
+            </div>
+        </div>
+        `;
+    };
+    
+    const handleAppClick = (e) => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+        const action = target.dataset.action;
+        const id = target.dataset.id;
+        const t = getT();
+        
+        switch(action) {
+            case 'open-add': setState({ isAddModalOpen: true }); break;
+            case 'open-premium': setState({ isPremiumModalOpen: true }); break;
+            case 'open-surprise': handleOpenSurprise(); break;
+            case 'open-chat':
+                if (state.minoriMessages.length === 0) {
+                  state.minoriMessages.push({ role: 'minori', content: t.minoriWelcome });
+                  state.minoriMessages.push({ role: 'minori', content: t.minoriPrivacy });
+                }
+                setState({ isChatOpen: true });
+                break;
+            case 'close-chat': setState({ isChatOpen: false }); break;
+            case 'delete':
+                if (state.isPremium) {
+                    setState({ quotes: state.quotes.filter(q => q.id !== id) });
+                } else {
+                    setState({ isPremiumModalOpen: true });
+                }
+                break;
+            case 'toggle-favorite':
+                setState({ quotes: state.quotes.map(q => q.id === id ? { ...q, isFavorite: !q.isFavorite } : q) });
+                break;
+            case 'share':
+                setState({ selectedQuote: state.quotes.find(q => q.id === id), isShareModalOpen: true });
+                break;
+            case 'copy-quote':
+                const quote = state.selectedQuote;
+                if (!quote) return;
+                navigator.clipboard.writeText(`"${quote.text}" - ${quote.author || 'Anonyme'}`);
+                target.innerHTML = `✓ ${t.copied}`;
+                setTimeout(() => { target.innerHTML = `${ICONS.copy} ${t.copy}`; }, 2000);
+                break;
+            case 'toggle-favorites-view': setState({ showFavoritesOnly: !state.showFavoritesOnly }); break;
+            case 'close-modal': setState({ isAddModalOpen: false, isPremiumModalOpen: false, isShareModalOpen: false, isAlertModalOpen: false, isSurpriseModalOpen: false }); break;
+            case 'add-minori-quote':
+                const messageIndex = parseInt(target.dataset.messageIndex, 10);
+                const message = state.minoriMessages[messageIndex];
+                if (message && message.quote) {
+                    const quoteExists = state.quotes.some(q => q.text === message.quote.text && q.author === message.quote.author);
+                    if (!quoteExists) {
+                        addQuote(message.quote);
+                        const newMessages = [...state.minoriMessages, { role: 'system', content: t.quoteAdded }];
+                        setState({ minoriMessages: newMessages });
+                    }
+                }
+                break;
+            case 'add-surprise-quote':
+                if (state.dailySurpriseQuote) {
+                    const quoteExists = state.quotes.some(q => q.text === state.dailySurpriseQuote.text && q.author === state.dailySurpriseQuote.author);
+                    if (!quoteExists) {
+                        addQuote(state.dailySurpriseQuote);
+                    }
+                }
+                break;
+            case 'filter-collection':
+                const collection = target.dataset.collection;
+                setState({ activeCollection: collection });
+                break;
+        }
+    };
+
+    function attachEventListeners() {
+      // Event listeners for forms and inputs are attached here because their DOM elements are recreated on each render.
+      const addQuoteForm = document.getElementById('add-quote-form');
+      if (addQuoteForm) addQuoteForm.addEventListener('submit', handleAddQuote);
+      
+      const unlockPremiumForm = document.getElementById('unlock-premium-form');
+      if (unlockPremiumForm) unlockPremiumForm.addEventListener('submit', handleUnlockPremium);
+      
+      const chatForm = document.getElementById('chat-form');
+      if (chatForm) chatForm.addEventListener('submit', handleMinoriSend);
+
+      const chatInput = document.getElementById('chat-input');
+      if (chatInput) chatInput.addEventListener('input', e => state.minoriInput = e.target.value);
+      
+      const searchInput = document.getElementById('search-input');
+      if (searchInput) searchInput.addEventListener('input', e => setState({ searchQuery: e.target.value }));
+    }
+    
+    const addQuote = (newQuote) => {
+      const t = getT();
+      const quoteData = { id: `id-${Date.now()}-${Math.random()}`, ...newQuote, collection: newQuote.collection || t.general, createdAt: Date.now(), isFavorite: false };
+      setState({ quotes: [quoteData, ...state.quotes] });
+    };
+
+    const handleUnlockPremium = (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const codeInput = form.elements.code;
+      const code = codeInput.value;
+      const t = getT();
+      const errorMessageEl = document.getElementById('premium-error-message');
+      const modalContent = document.querySelector('#premium-modal [data-modal-content]');
+
+      if (code.trim() === "ouvre-toi") {
+        setState({ isPremium: true, isPremiumModalOpen: false });
+        if(errorMessageEl) errorMessageEl.textContent = '';
+      } else {
+        if(errorMessageEl) errorMessageEl.textContent = t.invalidCodeMessage;
+        
+        if (modalContent) {
+            modalContent.classList.add('shake-it');
+            setTimeout(() => modalContent.classList.remove('shake-it'), 820);
+        }
+        
+        codeInput.value = '';
+        setTimeout(() => {
+          if (errorMessageEl) errorMessageEl.textContent = '';
+        }, 3000);
+      }
+    };
+
+    const handleAddQuote = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const text = form.elements.text.value;
+        const t = getT();
+        
+        const isDuplicate = state.quotes.some(q => q.text.trim().toLowerCase() === text.trim().toLowerCase());
+        if(isDuplicate) {
+            setState({ isAddModalOpen: false, isAlertModalOpen: true, alertModalContent: { title: t.quoteExistsTitle, message: t.quoteExists }});
+            return;
+        }
+
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const submitText = submitBtn.querySelector('.submit-text');
+        const loadingSpinner = submitBtn.querySelector('.loading-spinner');
+
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+
+        try {
+            const analysis = JSON.parse(await callAI(`Analyse this quote: "${text}"`));
+            if (analysis.isAppropriate) {
+                addQuote({ 
+                  text: text, 
+                  author: form.elements.author.value || "Anonyme",
+                  collection: form.elements.collection.value || t.general,
+                });
+                setState({ isAddModalOpen: false });
+                form.reset();
+            } else {
+                setState({ isAlertModalOpen: true, alertModalContent: { title: t.inappropriateTitle, message: analysis.reason }});
+            }
+        } finally {
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            loadingSpinner.classList.add('hidden');
+        }
+    };
+    
+    const handleMinoriSend = async (e) => {
+        e.preventDefault();
+        const input = state.minoriInput;
+        if (!input.trim() || state.minoriIsLoading) return;
+        
+        const newMessages = [...state.minoriMessages, { role: 'user', content: input }];
+        setState({ minoriInput: '', minoriMessages: newMessages, minoriIsLoading: true });
+        scrollToChatBottom();
+
+        try {
+            const prompt = `You are Minori Motivation, a compassionate and non-judgmental friend. The user said: "${input}". Respond with empathy and offer a relevant quote.`;
+            const data = JSON.parse(await callAI(prompt));
+            setState({ minoriMessages: [...newMessages, { role: 'minori', content: data.message, quote: data.quote }], minoriIsLoading: false });
+            scrollToChatBottom();
+        } catch (error) {
+            setState({ minoriMessages: [...newMessages, { role: 'minori', content: getT().mentorError }], minoriIsLoading: false });
+            scrollToChatBottom();
+        }
+    };
+    
+    let observer;
+    const reinitObserver = () => {
+        if (observer) observer.disconnect();
+        const sentinel = document.getElementById('loading-sentinel');
+        if (!sentinel) return; 
+        
+        observer = new IntersectionObserver(async (entries) => {
+            if (entries[0] && entries[0].isIntersecting) {
+                await generateNewQuote();
+            }
+        }, { rootMargin: '200px' });
+        
+        observer.observe(sentinel);
+    };
+    
+    const generateNewQuote = async () => {
+        if (state.isGenerating) return;
+        setState({ isGenerating: true });
+        try {
+            let uniqueQuoteFound = false;
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            while(!uniqueQuoteFound && attempts < maxAttempts) {
+                const newQuoteData = JSON.parse(await callAI("Generate a new quote."));
+                const isDuplicate = state.quotes.some(q => q.text.trim().toLowerCase() === newQuoteData.text.trim().toLowerCase());
+
+                if (!isDuplicate) {
+                    addQuote(newQuoteData);
+                    uniqueQuoteFound = true;
+                }
+                attempts++;
+            }
+            if (!uniqueQuoteFound) {
+                console.warn(`Could not find a unique quote after ${maxAttempts} attempts.`);
+            }
+        } finally {
+            setState({ isGenerating: false });
+        }
+    };
+    
+    const getDailySurpriseQuote = async () => {
+        const today = new Date().toISOString().split('T')[0];
+        const storedSurprise = localStorage.getItem('dailySurpriseQuote');
+        let surprise = null;
+
+        if (storedSurprise) {
+            const parsed = JSON.parse(storedSurprise);
+            if (parsed.date === today) {
+                surprise = parsed.quote;
+            }
+        }
+
+        if (!surprise) {
+            let uniqueQuoteFound = false;
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            while(!uniqueQuoteFound && attempts < maxAttempts) {
+                const newQuoteData = JSON.parse(await callAI("Generate a new quote."));
+                const isDuplicate = state.quotes.some(q => q.text.trim().toLowerCase() === newQuoteData.text.trim().toLowerCase());
+
+                if (!isDuplicate) {
+                    surprise = newQuoteData;
+                    localStorage.setItem('dailySurpriseQuote', JSON.stringify({ date: today, quote: surprise }));
+                    uniqueQuoteFound = true;
+                }
+                attempts++;
+            }
+            if (!uniqueQuoteFound) {
+                console.warn(`Could not find a unique quote for the daily surprise after ${maxAttempts} attempts.`);
+                surprise = null;
+            }
+        }
+        return surprise;
+    };
+    
+    const handleOpenSurprise = async () => {
+        const quote = await getDailySurpriseQuote();
+        setState({ dailySurpriseQuote: quote, isSurpriseModalOpen: true });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadState();
+        app.addEventListener('click', handleAppClick);
+        render();
+
+        // Security measures to deter casual source code viewing
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', event => {
+          // Block Ctrl+U, Ctrl+S, Ctrl+Shift+I (Allow Ctrl+C for copying text)
+          if (event.ctrlKey && ['u', 's', 'i'].includes(event.key.toLowerCase())) {
+            event.preventDefault();
+          }
+          // Block F12
+          if (event.key === 'F12') {
+            event.preventDefault();
+          }
+        });
+    });
+  </script>
+</body>
+</html>
