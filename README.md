@@ -4,8 +4,7 @@
 
 inspiraCitation est une application web élégante et moderne conçue pour vous aider à collecter, gérer et découvrir des citations inspirantes. Grâce à son intelligence artificielle intégrée, "Minori", l'application devient plus qu'une simple collection ; elle se transforme en un véritable compagnon de motivation.
 
-![Aperçu de l'application inspiraCitation](https://i.imgur.com/your-screenshot-url.png) 
-*(Remplacez par une capture d'écran de l'application)*
+
 
 ---
 
